@@ -11,19 +11,28 @@ revealOptions:
 
 ---
 
-## \*TODO* Enzyme
+## Enzyme
 
 ```jsx
-simulate('click')
+const wrapper = mount(<Button />)
+wrapper.find('button').simulate('click')
+
+// Работать не будет
+// wrapper.simulate('click') 
 ```
 
-- Не честные клики, вызов props.onClick
+- Не честные клики, вызов `props.onClick`
+- Завязка на внутреннюю разметку
 
 ---
 
 ## \*TODO* TestCafe
 
-*TODO* Нужен пример кода
+```jsx
+test()
+```
+
+
 
 - Удобная штука для e2e тестов
 - Можно инжектить код на клиент
