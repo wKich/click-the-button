@@ -26,13 +26,14 @@ wrapper.find('button').simulate('click')
 
 ---
 
-## \*TODO* TestCafe
+## TestCafe
 
 ```jsx
-test()
+test('Click the button', async t => {
+  await t.click('[data-prop-tid=button]')
+  // ...
+})
 ```
-
-
 
 - Удобная штука для e2e тестов
 - Можно инжектить код на клиент
@@ -40,31 +41,31 @@ test()
 
 ---
 
-## \*TODO* react-selenium-testing
+## DOM Events
 
-*TODO* Пример использования
+```jsx
+const button = document.querySelector('[data-prop-tid=button]')
 
-<https://github.com/skbkontur/react-ui-testing/tree/master/SeleniumTesting> 
-
----
-
-## \*TODO* DOM Events
-
-element.click() document.createEvent(type)
+const event = new MouseEvent('click')
+button.querySelector('button').dispatchEvent(event)
+// Или
+button.querySelector('button').click()
+```
 
 - Всплытие и tid навешивается на label
 - Завязка на внутреннюю разметку компонентов
 
 ---
 
-## \*TODO* Chrome DevTools Protocol
+## Chrome DevTools Protocol
 
 Решение в лоб
 
 ---
 
 ```javascript
-const ws = new WebSocket(`ws://localhost:9222/devtools/page/${PageId}`)
+const ws = new WebSocket(
+    `ws://localhost:9222/devtools/page/${PageId}`)
 const send = data =>
 	ws.send(JSON.stringify({ id: uuid(), ...data }))
 ```
@@ -92,14 +93,14 @@ send({
 
 ---
 
-## \*TODO* Puppeteer 
+## Puppeteer 
 
-- API это и плюс и минус
+- Хорошее и удобное API, но...
 - Не работает в браузере из коробки
 
 ---
 
-## \*TODO* attachDevTools
+## attachDevTools
 
 ```javascript
 import { Connection } from 'puppeteer/lib/Connection'
@@ -107,18 +108,22 @@ import Browser from 'puppeteer/lib/Browser'
 ```
 
 ```javascript
-const response = await fetch('http://localhost:9222/json/version')
+const response =
+    await fetch('http://localhost:9222/json/version')
 const data = await response.json()
 ```
 
 ```javascript
-const connection = await Connection.createForWebSocket(data.webSocketDebuggerUrl)
-const browser = await Browser.create(connection, { appMode: true })
+const connection = await Connection
+	.createForWebSocket(data.webSocketDebuggerUrl)
+const browser = await Browser
+    .create(connection, { appMode: true })
 const pages = await browser.pages()
 ```
 
 ```javascript
-// Disables network tracking, prevents network events from being sent to the client
+// Disables network tracking,
+// prevents network events from being sent to the client
 // NOTE Because we don't want crash browser under events flood
 pages.forEach(p => p._client.send('Network.disable', {}))
 ```
@@ -145,14 +150,15 @@ const page = await new Promise(resolve => {
 
 ---
 
-## \*TODO* PROFIT
+## PROFIT
 
 - Удобное API
 - Честные клики и не только
+- Работает только в хроме
 
 ---
 
-## \*TODO* Bonus
+## Bonus
 
 ```javascript
 const promiseHandler = {
@@ -179,3 +185,4 @@ await devtools.type('[data-prop-tid=datepicker]', '23.10.2018')
 await devtools.mouse.click(0, 0)
 ```
 
+<https://github.com/skbkontur/react-ui-testing/tree/master/SeleniumTesting> 
