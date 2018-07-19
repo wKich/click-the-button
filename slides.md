@@ -184,5 +184,3 @@ await devtools.click('[data-prop-tid=datepicker]')
 await devtools.type('[data-prop-tid=datepicker]', '23.10.2018')
 await devtools.mouse.click(0, 0)
 ```
-
-<https://github.com/skbkontur/react-ui-testing/tree/master/SeleniumTesting> 
