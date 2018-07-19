@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>reveal-md</title>
+        <link rel="stylesheet" href="./css/reveal.css">
+        <link rel="stylesheet" href="./css/theme/black.css" id="theme">
+        <link rel="stylesheet" href="./css/highlight/zenburn.css">
+        <link rel="stylesheet" href="./css/print/paper.css" type="text/css" media="print">
+
+
+    </head>
+    <body>
+
+        <div class="reveal">
+            <div class="slides"><section  data-markdown><script type="text/template">
+
+
+
+# Click the button
+
+## the hard way
+</script></section><section  data-markdown><script type="text/template">
+## Enzyme
+
+```jsx
+const wrapper = mount(<Button />)
+wrapper.find('button').simulate('click')
+
+// Работать не будет
+// wrapper.simulate('click') 
+```
+
+- Не честные клики, вызов `props.onClick`
+- Завязка на внутреннюю разметку
+</script></section><section  data-markdown><script type="text/template">
+## TestCafe
+
+```jsx
+test('Click the button', async t => {
+  await t.click('[data-prop-tid=button]')
+  // ...
+})
+```
+
+- Удобная штука для e2e тестов
+- Можно инжектить код на клиент
+- Мокать и навешивать spy, слишком сложно
+</script></section><section  data-markdown><script type="text/template">
+## DOM Events
+
+```jsx
+const button = document.querySelector('[data-prop-tid=button]')
+
+const event = new MouseEvent('click')
+button.querySelector('button').dispatchEvent(event)
+// Или
+button.querySelector('button').click()
+```
+
+- Всплытие и tid навешивается на label
+- Завязка на внутреннюю разметку компонентов
+</script></section><section  data-markdown><script type="text/template">
+## Chrome DevTools Protocol
+
+Решение в лоб
+</script></section><section  data-markdown><script type="text/template">
+```javascript
+const ws = new WebSocket(
+    `ws://localhost:9222/devtools/page/${PageId}`)
+const send = data =>
+	ws.send(JSON.stringify({ id: uuid(), ...data }))
+```
+
+```javascript
+send({method: 'DOM.getDocument', params: {}})
+send({
+    method: 'DOM.querySelector',
+    params: {nodeId: 1, selector: '[data-prop-tid=button]'}})
+```
+
+```javascript
+send({method: 'DOM.getBoxModel', params: { nodeId: 23}})
+send({
+    method: 'Input.dispatchMouseEvent',
+    params: { type: 'mousePressed', x: 40, y: 357,
+               button: 'left', clickCount: 1}})
+send({
+    method: 'Input.dispatchMouseEvent',
+    params: { type: 'mouseReleased', x: 40, y: 357,
+             button: 'left', clickCount: 1}})
+```
+
+
+</script></section><section  data-markdown><script type="text/template">
+## Puppeteer 
+
+- Хорошее и удобное API, но...
+- Не работает в браузере из коробки
+</script></section><section  data-markdown><script type="text/template">
+## attachDevTools
+
+```javascript
+import { Connection } from 'puppeteer/lib/Connection'
+import Browser from 'puppeteer/lib/Browser'
+```
+
+```javascript
+const response =
+    await fetch('http://localhost:9222/json/version')
+const data = await response.json()
+```
+
+```javascript
+const connection = await Connection
+	.createForWebSocket(data.webSocketDebuggerUrl)
+const browser = await Browser
+    .create(connection, { appMode: true })
+const pages = await browser.pages()
+```
+
+```javascript
+// Disables network tracking,
+// prevents network events from being sent to the client
+// NOTE Because we don't want crash browser under events flood
+pages.forEach(p => p._client.send('Network.disable', {}))
+```
+</script></section><section  data-markdown><script type="text/template">
+```javascript
+const page = await new Promise(resolve => {
+  const expectedGuid = uuid()
+  const findCurrentPage = index => async msg => {
+    if (msg.type() != 'debug') return
+    const [firstArg] = msg.args()
+    const receivedGuid = await firstArg.jsonValue()
+    if (receivedGuid == expectedGuid) {
+      pages[index].removeAllListeners('console')
+      resolve(pages[index])
+    }
+  }
+  pages.forEach((p, index) =>
+                p.on('console', findCurrentPage(index)))
+  console.debug(expectedGuid)
+})
+```
+</script></section><section  data-markdown><script type="text/template">
+## PROFIT
+
+- Удобное API
+- Честные клики и не только
+- Работает только в хроме
+</script></section><section  data-markdown><script type="text/template">
+## Bonus
+
+```javascript
+const promiseHandler = {
+  apply(target, _thisArg, args) {
+    return target().then(func => func(...args))
+  },
+  get(target, prop) {
+    return new Proxy(() => target()
+      .then(obj => obj[prop]), promiseHandler)
+  },
+}
+
+const devtools = new Proxy(() => attachDevTools(),
+                           promiseHandler)
+```
+
+```typescript
+render(<Button tid="button" />, container)
+await devtools.click('[data-prop-tid=button]')
+// ...
+render(<DatePicker tid="datepicker" />, container)
+await devtools.click('[data-prop-tid=datepicker]')
+await devtools.type('[data-prop-tid=datepicker]', '23.10.2018')
+await devtools.mouse.click(0, 0)
+```
+</script></section></div>
+        </div>
+
+        <script src="./lib/js/head.min.js"></script>
+        <script src="./js/reveal.js"></script>
+
+        <script>
+            function extend() {
+              var target = {};
+              for (var i = 0; i < arguments.length; i++) {
+                var source = arguments[i];
+                for (var key in source) {
+                  if (source.hasOwnProperty(key)) {
+                    target[key] = source[key];
+                  }
+                }
+              }
+              return target;
+            }
+
+            // Optional libraries used to extend on reveal.js
+            var deps = [
+              { src: './lib/js/classList.js', condition: function() { return !document.body.classList; } },
+              { src: './plugin/markdown/marked.js', condition: function() { return !!document.querySelector('[data-markdown]'); } },
+              { src: './plugin/markdown/markdown.js', condition: function() { return !!document.querySelector('[data-markdown]'); } },
+              { src: './plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+              { src: './plugin/zoom-js/zoom.js', async: true },
+              { src: './plugin/notes/notes.js', async: true },
+              { src: './plugin/math/math.js', async: true }
+            ];
+
+            // default options to init reveal.js
+            var defaultOptions = {
+              controls: true,
+              progress: true,
+              history: true,
+              center: true,
+              transition: 'default', // none/fade/slide/convex/concave/zoom
+              dependencies: deps
+            };
+
+            // options from URL query string
+            var queryOptions = Reveal.getQueryHash() || {};
+
+            var options = {"transition":"slide"};
+            options = extend(defaultOptions, options, queryOptions);
+        </script>
+
+
+        <script>
+            Reveal.initialize(options);
+        </script>
+    </body>
+</html>
