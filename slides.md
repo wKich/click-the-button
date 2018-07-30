@@ -11,6 +11,16 @@ revealOptions:
 
 ---
 
+# \*TODO* Кто я
+
+---
+
+## The Test Pyramid
+
+![](./pyramid.svg)
+
+---
+
 ## Enzyme
 
 ```jsx
