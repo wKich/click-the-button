@@ -5,19 +5,23 @@ revealOptions:
 
 
 
-# Click the button
+# CLICK THE BUTTON
 
-## the hard way
+## The hard way
 
----
-
-# \*TODO* Кто я
+Note: Представиться. Рассказ про команду (Экстерн, сервис отчетности, формы). Вступительное слово (Насколько трудно кликнуть по кнопке, в тестах)
 
 ---
 
 ## The Test Pyramid
 
 ![](./pyramid.svg)
+
+Note: Какие тесты бывают (Unit, Integration, E2E). Unit — Плюсы: TDD, быстрые, стабильные, легко поддерживать. Минусы: низкое покрытие, бесполезны после рефакторинга. E2E — Плюсы: пользовательские сценарии, огромное покрытие, независят от рефакторинга. Минусы: медленные, нестабильные, тяжело поддерживать. Integration — Плюсы: хорошее покрытие, быстрые, стабильные. Минусы: нет пользовательских сценариев, поддержка чуть сложнее чем Unit. Почему именно Integration. Много сгенерированных форм, тяжело поддерживать столько E2E тестов, медленные. Unit тесты не дают достаточного уровня покрытия.
+
+---
+
+<iframe width="853" height="480" data-src="https://www.youtube.com/embed/0GypdsJulKE?autoplay=1&controls=0&loop=1&playlist=0GypdsJulKE&showinfo=0"></iframe>
 
 ---
 
@@ -48,6 +52,12 @@ test('Click the button', async t => {
 - Удобная штука для e2e тестов
 - Можно инжектить код на клиент
 - Мокать и навешивать spy, слишком сложно
+
+---
+
+## react-selenium-testing
+
+\*TODO*
 
 ---
 
@@ -194,3 +204,13 @@ await devtools.click('[data-prop-tid=datepicker]')
 await devtools.type('[data-prop-tid=datepicker]', '23.10.2018')
 await devtools.mouse.click(0, 0)
 ```
+
+---
+
+## The End
+
+\*TODO* QR, ссылки
+
+https://martinfowler.com/bliki/TestPyramid.html
+
+https://www.youtube.com/watch?v=0GypdsJulKE
