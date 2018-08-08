@@ -233,7 +233,9 @@ it('Should dispatch action with value', async () => {
 
 ## The End
 
-\*TODO* QR, ссылки
+![](./click-the-button.svg)
+
+https://wkich.github.io/click-the-button/
 
 https://martinfowler.com/bliki/TestPyramid.html
 
