@@ -63,7 +63,7 @@ Note: Чего же мы хотим от тестов? Честные клики
 
 ![](./unit-vs-integration.gif)
 
-Note: Потому что это юнит тесты. С помощью них нельзя протестировать взаимодействие.  Давайте напишем такие тесты на нашу офигенско крутую кнопку.
+Note: Потому что это юнит тесты. С помощью них нельзя протестировать взаимодействие. Давайте напишем такие тесты на нашу офигенско крутую кнопку.
 
 ---
 
@@ -152,12 +152,12 @@ const getInternalMethodArgs = ClientFunction(() => {
 fixture `AwesomeButton Tests`
 	.page `http://localhost:3000/awesome-button`
 
-test('Click the button', async t => {    
+test('Click the button', async t => {
     await t.click('[data-comp-name=AwesomeButton]')
-    
+
     const expectedArgs = [ /* ... */ ]
     const receivedArgs = await getInternalMethodArgs()
-    
+
     await t.expect(receivedArgs).eql(expectedArgs)
 })
 ```
@@ -283,11 +283,11 @@ Note: Кто знаком с папитиром? Пауза. Puppeteer — пе�
 
 ---
 
-## TODO фрагменты
-
 ```typescript
 import { Connection } from 'puppeteer/lib/Connection'
 import Browser from 'puppeteer/lib/Browser'
+
+// ...
 
 const connection = await Connection
 	.createForWebSocket(webSocketDebuggerUrl)
@@ -297,17 +297,16 @@ const pages = await browser.pages()
 ```
 
 ```typescript
-// Disables network tracking,
-// prevents network events from being sent to the client
-// NOTE Because we don't want crash browser under events flood
 pages.forEach(p => p._client.send('Network.disable', {}))
 ```
 
-Note: Подключимся по вебсокетам и запросим доступные на данный момент вкладки. В конце для каждой вкладки надо отключить обработку сетевых событий. Для чего это нужно? Так как мы подключаемся к браузеру из самого браузера, чтобы управлять этим браузером из браузера. (Чжеки Чан) Взрыв мозга.
+<!-- .element class="fragment" data-fragment-index="1" -->
+
+Note: Подключимся по вебсокетам и запросим доступные на данный момент вкладки. В конце для каждой вкладки надо отключить отправку сетевых событий. Для чего это нужно? Потому что мы подключаемся к браузеру из самого браузера, чтобы управлять этим браузером из браузера.
 
 ---
 
-## TODO Джеки чан
+![](./xzibit.jpg)
 
 Note: У нас в браузере может быть открыто много вкладок и чтобы выяснить с какой вкладкой нам необходимо работать, нужно применить немного консольной магии
 
@@ -332,14 +331,22 @@ Note: Для этого подпишемся на события консоли 
 
 ---
 
-## TODO взаимодействие
-
-```typescript
+```jsx
 it('Click the button', async () => {
-  render(<AwesomeButton />)
+  const container = document.getElementById('root')
+  const form = new FakeForm({ /* ... */ })
+
+  ReactDOM.render(
+    <FormProvider value={form}>
+      <AwesomeButton />
+    </FormProvider>,
+    container
+  )
+
   await page.click('[data-comp-name=AwesomeButton]')
-  
-  // ...
+
+  expect(form.module.doSomething)
+    .to.have.been.calledWithExactly({ /* ... */ })
 })
 ```
 
